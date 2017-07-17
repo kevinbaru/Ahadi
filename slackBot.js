@@ -17,9 +17,7 @@ var RtmClient = require('@slack/client').RtmClient;
 var RTM_EVENTS = require('@slack/client').RTM_EVENTS;
 var CLIENT_EVENTS = require('@slack/client').CLIENT_EVENTS; //
 
-// use env.sh
-var token = 'xoxb-213345309616-Pcjs9E0KQts5QvTavryg4ByK';
-// var token = process.env.SLACK_API_TOKEN || '';
+var token = process.env.SLACK_API_TOKEN || '';
 
 var rtm = new RtmClient(token);
 rtm.start();
