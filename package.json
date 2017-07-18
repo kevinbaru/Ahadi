@@ -4,6 +4,7 @@
   "description": "AI bot for scheduling in Slack.",
   "main": "index.js",
   "scripts": {
+    "start": "node slackBot",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -18,7 +19,9 @@
   "homepage": "https://github.com/OUWANG/SlackBot#readme",
   "dependencies": {
     "@slack/client": "^3.10.0",
+    "axios": "^0.16.2",
     "body-parser": "^1.17.2",
     "express": "^4.15.3"
-  }
+  },
+  "devDependencies": {}
 }
