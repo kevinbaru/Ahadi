@@ -7,6 +7,7 @@ var {web}= require('./slackBot');
 
 Reminder.find({date:{$gt: Date.now(), $lt:  new Date(Date.now() + (24 * 60 * 60 * 1000))}})
 .then(function(reminders){
+  console.log('reeem',remiders)
   reminders.map((reminder)=>{
     web.chat.postMessage(reminder.user.slackDMId,'REMINDER: '+ reminder.subject,function() {
       process.exit(0)
