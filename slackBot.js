@@ -231,3 +231,7 @@ rtm.on(CLIENT_EVENTS.RTM.RTM_CONNECTION_OPENED, function () {
   // rtm.sendMessage("Hello!", channel);
   console.log("Bot is online!");
 });
+module.exports={
+  rtm,
+  web
+}
