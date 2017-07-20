@@ -43,19 +43,6 @@ router.post('/messageReceive', function(req, res) {
 
   if (payload.actions[0].value === 'true'){
 
-    // event = {
-    //   'summary': 'Eat lots of food',
-    //   'location': '450 9th St., San Francisco, CA 94103',
-    //   'description': 'A chance to hear more about Google\'s developer products.',
-    //   'start': {
-    //     'dateTime': '2017-07-20T19:00:00-08:30',
-    //     'timeZone': 'America/Los_Angeles'
-    //   },
-    //   'end': {
-    //     'dateTime': '2017-07-20T19:00:00-10:00',
-    //     'timeZone': 'America/Los_Angeles'
-    //   }
-    // };
 
     var calendar = google.calendar('v3');
     let oauth2Client = new OAuth2(
