@@ -7,9 +7,9 @@ var {web}= require('./slackBot');
 var moment= require('moment');
 console.log('now',moment(Date.now()).format()+'Z')
 
-console.log('tomorrow',moment(Date.now()).add(1,'day').format()+'Z')
+console.log('tomorrow',moment(Date.now()).add(3,'day').format()+'Z')
 
-Reminder.find({date:{$gt: moment(Date.now()).format()+'Z'}})
+Reminder.find({date:{$gt: moment(Date.now()).add(3,'day').format()+'Z'}})
 .then(function(reminders){
   console.log('reeem',reminders)
   reminders.map((reminder)=>{
