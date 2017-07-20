@@ -5,11 +5,11 @@ console.log('Hello I am runnin!!')
 var{User, Reminder}= require('./models');
 var {web}= require('./slackBot');
 var moment= require('moment');
-console.log('now',moment(new Date()).format())
+console.log('now',moment(Date.now()).format()+'Z')
 
-console.log('tomorrow',moment(new Date()).add(1,'day').format())
+console.log('tomorrow',moment(Date.now()).add(1,'day').format()+'Z')
 
-Reminder.find({date:{$gt:moment(new Date()).format(), $lt:  moment(new Date()).add(1,'day').format()}})
+Reminder.find({date:{$gt: moment(Date.now()).format()+'Z'}})
 .then(function(reminders){
   console.log('reeem',reminders)
   reminders.map((reminder)=>{
