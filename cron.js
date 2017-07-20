@@ -19,7 +19,7 @@ Reminder.find({date:{$lt: moment(Date.now()).add(3,'day').format()}}).populate('
 
   });
 
-    process.exit(0)
+    //process.exit(0)
 
 
 
