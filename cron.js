@@ -6,7 +6,7 @@ var{User, Reminder}= require('./models');
 var {web}= require('./slackBot');
 var moment= require('moment');
 
-Reminder.find({date:{$gt:moment(new Date()),format, $lt:  moment(new Date()).add(1,'day').format()}})
+Reminder.find({date:{$gt:moment(new Date()).format, $lt:  moment(new Date()).add(1,'day').format()}})
 .then(function(reminders){
   console.log('reeem',reminders)
   reminders.map((reminder)=>{
