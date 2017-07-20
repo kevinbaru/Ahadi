@@ -9,17 +9,22 @@ console.log('now',moment(Date.now()).format()+'Z')
 
 console.log('tomorrow',moment(Date.now()).add(3,'day').format()+'Z')
 
-Reminder.find({date:{$gt: moment(Date.now()).add(3,'day').format()+'Z'}})
+Reminder.find({date:{$lt: moment(Date.now()).add(3,'day').format()}}).populate('user')
 .then(function(reminders){
+
   console.log('reeem',reminders)
   reminders.map((reminder)=>{
-    web.chat.postMessage(reminder.user.slackDMId,'REMINDER: '+ reminder.subject,function() {
+    console.log(reminder.reminder.subject,'fgggg')
+    web.chat.postMessage(reminder.user.slackDMId,`REMINDER: ${reminder.reminder.subject}`,function() {
       process.exit(0)
     });
 
   })
 
 
+})
+.catch((err)=>{
+  console.log('ReminderError',err)
 })
 
  // User.findOne()
