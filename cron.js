@@ -4,8 +4,9 @@ console.log('Hello I am runnin!!')
 
 var{User, Reminder}= require('./models');
 var {web}= require('./slackBot');
+var moment= require('moment');
 
-Reminder.find({date:{$gt: Date.now(), $lt:  new Date(Date.now() + (24 * 60 * 60 * 1000))}})
+Reminder.find({date:{$gt:moment(new Date()),format, $lt:  moment(new Date()).add(1,'day').format()}})
 .then(function(reminders){
   console.log('reeem',reminders)
   reminders.map((reminder)=>{
