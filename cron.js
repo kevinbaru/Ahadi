@@ -15,11 +15,12 @@ Reminder.find({date:{$lt: moment(Date.now()).add(3,'day').format()}}).populate('
   console.log('reeem',reminders)
   reminders.map((reminder)=>{
     console.log(reminder.reminder.subject,'fgggg')
-    web.chat.postMessage(reminder.user.slackDMId,`REMINDER: ${reminder.reminder.subject}`,function() {
-      process.exit(0)
-    });
+    web.chat.postMessage(reminder.user.slackDMId,`REMINDER: ${reminder.reminder.subject}`);
 
-  })
+  });
+
+    process.exit(0)
+
 
 
 })
