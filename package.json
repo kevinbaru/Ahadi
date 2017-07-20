@@ -4,7 +4,7 @@
   "description": "AI bot for scheduling in Slack.",
   "main": "index.js",
   "scripts": {
-    "start": "node slackBot",
+    "start": "nodemon slackBot",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -21,7 +21,11 @@
     "@slack/client": "^3.10.0",
     "axios": "^0.16.2",
     "body-parser": "^1.17.2",
-    "express": "^4.15.3"
+    "express": "^4.15.3",
+    "gapi": "0.0.3",
+    "googleapis": "^20.1.0",
+    "moment": "^2.18.1",
+    "mongoose": "^4.11.3"
   },
   "devDependencies": {}
 }
