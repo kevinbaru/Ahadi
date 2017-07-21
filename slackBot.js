@@ -146,7 +146,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
         return invitee.profile.first_name||invitee.profile.real_name;
       })
 
-      console.log('menebebfewhrerh',message.user)
+      console.log('menebebfewhrerh',message.text)
 
 
       // curl 'https://api.api.ai/api/query?v=20150910&query=remind%20me&lang=en&sessionId=13756478-6ee1-48f8-9953-7f53da5e2206&timezone=2017-07-17T16:55:51-0700' -H 'Authorization:Bearer e637efb67d9e44abbb260b09b472af21'
@@ -186,16 +186,16 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
                   }).save()
                   .then((saved)=>{
                   let requester=rtm.dataStore.getUserById(message.user)
-                  rtm.sendMessage(`${requester.profile.first_name||requester.profile.real_name} wants to schedule a meeting with you
-                    Click on the following link to authorize access to your Google calendar ${process.env.DOMAIN}/connect?auth=${invitee.userId}`,
+                  rtm.sendMessage(`${requester.profile.first_name||requester.profile.real_name} wants to schedule a meeting with you.\
+                     Click on the following link to authorize access to your Google calendar ${process.env.DOMAIN}/connect?auth=${invitee.userId}`,
                     channel.channel.id,function(err,success){
                       if(err){
                         console.log('errrrggdgfggSending access auth to others users',err)
                       }else{
                         console.log('sseenenntnttnntntntntntntntntn',success)
-                        rtm.sendMessage(`Wait for authorization to ${invitee.displayName} Google\'s calendar,
+                        rtm.sendMessage(`Wait for authorization to ${invitee.displayName} Google\'s calendar, \
                         You can proceed without them or wait for notification on Google calendar authorization. Please start again
-                        `,user.slackDMId,(err,mesg)=>{
+                        `,user.slackDMId,(err,msg)=>{
                           if(err){ console.log('error sendim me fedback messsage',err)
                         }else{
                           console.log(msg)
