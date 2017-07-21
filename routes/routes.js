@@ -61,8 +61,8 @@ router.post('/messageReceive', function(req, res) {
         event = {
           'summary': user.parameters.subject,
           'location': user.parameters.location,
-          'description': user.parameters.subject,
-          'attendees':{'displayName':user.parameters.invitees[0]},
+          'description':`meeting with ${user.invitees.displayName}-${user.parameters.subject}` ,
+          'attendees':user.invitees,
           'start': {
             'dateTime':user.parameters.date + 'T' + user.parameters.time ,
             'timeZone': 'America/Los_Angeles'
@@ -77,7 +77,7 @@ router.post('/messageReceive', function(req, res) {
 
         event = {
           'summary': user.parameters.subject,
-          'attendees':user.parameters.invitees,
+          'attendees':user.invitees,
           'location': user.parameters.location,
           'description': user.parameters.subject,
           'start': {
@@ -120,6 +120,7 @@ router.post('/messageReceive', function(req, res) {
           .then((savedR)=>{
             user.pendingExist=false;
             user.parameters={};
+            user.invitees={};
             console.log('userPendingExist',user.pendingExist)
             user.save()
           })
@@ -153,6 +154,7 @@ router.post('/messageReceive', function(req, res) {
     User.findOne({slackID:payload.user.id})
     .then((user)=>{
       user.parameters={};
+      user.invitees={};
       user.pendingExist=false;
       user.save(function(err,saved){
         if(err){

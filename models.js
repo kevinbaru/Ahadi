@@ -17,6 +17,7 @@ var userSchema = mongoose.Schema({
     default:false
   },
   parameters:{},
+  invitees:[],
 });
 
 var reminderSchema = mongoose.Schema({

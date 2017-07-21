@@ -63,6 +63,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 
 
 
+
   User.findOne({slackID: message.user})
   .then((user)=>{
     if(!user){
@@ -79,7 +80,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
       rtm.sendMessage(`Please click on the link below to authorize access to your google Calendar ${process.env.DOMAIN}/connect?auth=${user.slackID}` , user.slackDMId)
     }else{
       if(user.google.expiry_date<=Date.now()){
-        console.log('expired')
+        console.log('expired', user.google.expiry_date);
         let rtoken={}
         rtoken.refresh_token=user.google.refresh_token;
         rtoken.access_token=user.google.access_token;
@@ -92,20 +93,25 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
           if(err){
             console.log('Error',err)
           }else{
-            console.log('refresssssss',tokens)
+
             user.google.expiry_date=tokens.expiry_date;
             user.google.id_token=tokens.id_token;
             user.google.refresh_token=tokens.refresh_token;
             user.google.access_token=tokens.access_token;
+            user.google.token_type=tokens.token_type;
+            user.markModified('google');
 
             user.save(function(err,saved){
               if(err){
-                res.json({error:err})
+                console.log("----------------------------")
+                console.log('SavingRefreshedTokensErr',err)
+                console.log("----------------------------")
+              } else {
+
               }
             })
           }
-          // your access_token is now refreshed and stored in oauth2Client
-          // store these new tokens in a safe place (e.g. database)
+
         });
       }
       if (user.pendingExist) {
@@ -113,6 +119,34 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
         // web.chat.postMessage(message.channel, `Scheduling a meeting with ${data.result.parameters.invitees} on ${data.result.parameters.date} at ${data.result.parameters.time} `, jsonBtn)
         return;
       }
+      //// Creating promises
+      // function postMessage(channelId,msg){
+      //   return new Promise(function(resolve,reject){
+      //     web.chat.postMessage(channelId, 'The current time is',function(err){
+      //       if(err){
+      //         reject(err)
+      //       }else{
+      //         resolve()
+      //       }
+      //     })
+      //   })
+      // }
+      // //Or use bluebird= require('bluebird')
+      //var postMessage= bluebird.promisify(web.chat.postMessage.bind(web.chat))
+
+
+
+      var regex= /<@\w+>/g
+      let users=[]
+      message.text=message.text.replace(regex,(match)=>{
+        var userId=match.slice(2,-1);
+        var invitee=rtm.dataStore.getUserById(userId);
+        console.log('inviteeeeeee',invitee)
+        users.push({displayName:invitee.profile.real_name, email:invitee.profile.email, userId:userId});
+        return invitee.profile.first_name||invitee.profile.real_name;
+      })
+
+      console.log('menebebfewhrerh',message.user)
 
 
       // curl 'https://api.api.ai/api/query?v=20150910&query=remind%20me&lang=en&sessionId=13756478-6ee1-48f8-9953-7f53da5e2206&timezone=2017-07-17T16:55:51-0700' -H 'Authorization:Bearer e637efb67d9e44abbb260b09b472af21'
@@ -135,8 +169,68 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
         // if some input is missing,
         if (data.result.actionIncomplete) {
           rtm.sendMessage(data.result.fulfillment.speech, message.channel);
-        }
-        else { //When I have everything what I need. ex. date & todo.
+        }else { //When I have everything what I need. ex. date & todo.
+
+          users.map((invitee,index)=>{
+            console.log(index,'indddddddd')
+            User.findOne({slackID:invitee.userId})
+            .then((fnd)=>{
+              if(!fnd){
+                web.im.open(invitee.userId,function(err,channel){
+                  if(err){ console.log('error making direct connection')
+                }else{
+                  console.log('chanel',channel)
+                  return new User({
+                    slackID:invitee.userId,
+                    slackDMId:channel.channel.id,
+                  }).save()
+                  .then((saved)=>{
+                  let requester=rtm.dataStore.getUserById(message.user)
+                  rtm.sendMessage(`${requester.profile.first_name||requester.profile.real_name} wants to schedule a meeting with you
+                    Click on the following link to authorize access to your Google calendar ${process.env.DOMAIN}/connect?auth=${invitee.userId}`,
+                    channel.channel.id,function(err,success){
+                      if(err){
+                        console.log('errrrggdgfggSending access auth to others users',err)
+                      }else{
+                        console.log('sseenenntnttnntntntntntntntntn',success)
+                        rtm.sendMessage(`Wait for authorization to ${invitee.displayName} Google\'s calendar,
+                        You can proceed without them or wait for notification on Google calendar authorization. Please start again
+                        `,user.slackDMId,(err,mesg)=>{
+                          if(err){ console.log('error sendim me fedback messsage',err)
+                        }else{
+                          console.log(msg)
+                        }
+
+                        })
+                      }
+
+                    });
+
+                  })
+                  .catch((err)=>{console.log('error')})
+                }
+                })
+
+
+
+
+              }else{
+                console.log('accesss othe users calendarhdhdhdhdhd')
+
+
+              }
+            })
+            .catch(err=>{
+              console.log('ErrorFindingInviteeonDatabase',err)
+            })
+
+
+
+
+          })
+
+
+
           var jsonBtn = {
             // "text": "Would you like to play a game?",
             "attachments": [
@@ -144,31 +238,17 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
                 // "title": "Is this reminder correct?",
                 "fallback": "You are unable to create a schedule",
                 "attachment_type": "default",
-                "fields": [
-                  {
-                    "title": "Subject",
-                    "value": data.result.parameters.subject,
-                    "short": true
-                  },
-                  {
-                    "title": "Date",
-                    "value": data.result.parameters.date,
-                    "short": true
-                  }
-                ]
-              },
-              {
-                // "title": "Is this reminder correct?",
-                "fallback": "You are unable to create a schedule",
+
+                "fallback": "You are unable to create ",
                 "callback_id": "confirm_or_not",
                 "color": "#3AA3E3",
                 "attachment_type": "default",
 
-                "title": "Is this reminder correct?",
+
                 "actions": [
                   {
                     "name": "confirm",
-                    "text": "Yes",
+                    "text": "Confirm",
                     "type": "button",
                     "value": "true"
                   },
@@ -185,7 +265,8 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
           }
 
           console.log('params',data.result.parameters)
-          user.pendingExist=true
+          user.pendingExist=true;
+          user.invitees=users;
           user.parameters=data.result.parameters
 
           user.save(function(err,saved){
@@ -196,18 +277,18 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 
 
 
-          // ACTION IS COMPLETE {date: '2017-07-26', description: 'do laundry', ...}
+
 
           // if invitees exist
           if (data.result.parameters.invitees) {
             web.chat.postMessage(message.channel, `Scheduling a meeting with ${data.result.parameters.invitees} on ${data.result.parameters.date} at ${data.result.parameters.time} `, jsonBtn)
           } else {
-            web.chat.postMessage(message.channel,'', jsonBtn)
+            web.chat.postMessage(message.channel,`Creating a Reminder to ${data.result.parameters.subject} on ${data.result.parameters.date}`, jsonBtn)
           }
         }
       })
 
-}
+    }
 
   })
   .catch(function(err){
@@ -215,7 +296,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   })
 
 
-console.log('jjjj')
+  console.log('jjjj')
 
 });
 
