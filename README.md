@@ -17,4 +17,4 @@ Install the bot in the group slack and run npm install & npm run
 
 https://cl.ly/0b0o3o1j0k3v
 
-https://cl.ly/0e0m1y0M2U3P
+https://cl.ly/2T2n1l1V1L24
