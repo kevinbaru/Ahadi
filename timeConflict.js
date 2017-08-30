@@ -60,7 +60,7 @@ var timeConflict= function(user,startTime, endTime){
         //     }
         //   })
         // }else
-        console.log('conflictsssssssssssssssssssssssssssssssssssss',user.google.profile_name,resp.calendars.primary)
+       
         // return resp;
         resolve(resp.calendars.primary);
 
