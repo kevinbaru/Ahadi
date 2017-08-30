@@ -1,5 +1,4 @@
 
-
 var google = require('googleapis');
 var OAuth2 = google.auth.OAuth2;
 var calendar = google.calendar('v3');
