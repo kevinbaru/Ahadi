@@ -86,37 +86,19 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
       refreshToken(user)
       if (user.pendingExist) {
         rtm.sendMessage("I think you're trying to create a new reminder. If so, please press `cancel` first to about the current reminder", user.slackDMId)
-        // web.chat.postMessage(message.channel, `Scheduling a meeting with ${data.result.parameters.invitees} on ${data.result.parameters.date} at ${data.result.parameters.time} `, jsonBtn)
+        
         return;
       }
-      //// Creating promises
-      // function postMessage(channelId,msg){
-      //   return new Promise(function(resolve,reject){
-      //     web.chat.postMessage(channelId, 'The current time is',function(err){
-      //       if(err){
-      //         reject(err)
-      //       }else{
-      //         resolve()
-      //       }
-      //     })
-      //   })
-      // }
-      // //Or use bluebird= require('bluebird')
-      //var postMessage= bluebird.promisify(web.chat.postMessage.bind(web.chat))
-
-
-
+   
       var regex= /<@\w+>/g
       let users=[]
       message.text=message.text.replace(regex,(match)=>{
         var userId=match.slice(2,-1);
         var invitee=rtm.dataStore.getUserById(userId);
-        console.log('inviteeeeeee',invitee)
+
         users.push({displayName:invitee.profile.real_name, email:invitee.profile.email, userId:userId});
         return invitee.profile.first_name||invitee.profile.real_name;
       })
-
-      console.log('menebebfewhrerh',message.text)
 
       let timeSchedules=[] // Busy times for the user
 
@@ -124,7 +106,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
       let duration;
       let endTime;
       let data;
-      // curl 'https://api.api.ai/api/query?v=20150910&query=remind%20me&lang=en&sessionId=13756478-6ee1-48f8-9953-7f53da5e2206&timezone=2017-07-17T16:55:51-0700' -H 'Authorization:Bearer e637efb67d9e44abbb260b09b472af21'
+      
       axios.get('https://api.api.ai/api/query', {
         params: {
           v: 20150910,
@@ -139,7 +121,6 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
       })
       .then(function(temp) {
         data = temp.data
-        console.log('ggjgjjgjgjgjgjgggjg_____________________________________________')
         startTime = moment(data.result.parameters.date + 'T' + data.result.parameters.time).format();
         duration = data.result.parameters.duration.amount;
         endTime = moment(data.result.parameters.date + ' '+data.result.parameters.time).add(data.result.parameters.duration.amount,'hours').format();
@@ -151,7 +132,6 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 
       })
       .then(function(resp) {
-          console.log('iiiiiiiiiiiiiiiiiiiii',resp)
           if(resp.busy.length!==0){
             valid = false;
             // "There is a time conflict"
@@ -170,11 +150,9 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
         if (data.result.actionIncomplete) {
           rtm.sendMessage(data.result.fulfillment.speech, message.channel);
         }else { //When I have everything what I need. ex. date & todo.
-          console.log('dsfdhgfdhjfghdfgdjfdjf')
-          console.log(users)
+        
 
         users.map((invitee,index)=>{
-            console.log(index,'indddddddd')
             User.findOne({slackID:invitee.userId})
             .then((fnd)=>{
               if(!fnd){
@@ -192,9 +170,9 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
                   rtm.sendMessage(`${requester.profile.first_name||requester.profile.real_name} wants to schedule a meeting with you.\Click on the following link to authorize access to your Google calendar ${process.env.DOMAIN}/connect?auth=${invitee.userId}`,
                     channel.channel.id,function(err,success){
                       if(err){
-                        console.log('errrrggdgfggSending access auth to others users',err)
+                        console.log('errrr Sending access auth to others users',err)
                       }else{
-                        console.log('sseenenntnttnntntntntntntntntn',success)
+                       
                         rtm.sendMessage(`Request for access to google calendar sent to ${invitee.displayName} Google\'s calendar, \You can proceed or terminate the scheduling
                         `,user.slackDMId,(err,msg)=>{
                           if(err){ console.log('error sendim me fedback messsage',err)
@@ -216,14 +194,13 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 
 
               }else if(!fnd.google){
-                console.log('ayyayayayayaya found acccess details----------')
+              
                 let requester=rtm.dataStore.getUserById(message.user)
                 rtm.sendMessage(`${requester.profile.first_name||requester.profile.real_name} wants to schedule a meeting with you.\Click on the following link to authorize access to your Google calendar ${process.env.DOMAIN}/connect?auth=${invitee.userId}`,
                   channel.channel.id,function(err,success){
                     if(err){
                       console.log('errrrggdgfggSending access auth to others users',err)
                     }else{
-                      console.log('sseenenntnttnntntntntntntntntn',success)
                       rtm.sendMessage(`Request for access to google calendar sent to ${invitee.displayName} Google\'s calendar, \You can proceed or terminate the scheduling
                       `,user.slackDMId,(err,msg)=>{
                         if(err){ console.log('error sendim me fedback messsage',err)
@@ -247,18 +224,6 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
                 console.log('startTime',startTime)
                 console.log('endTime',endTime)
 
-
-                // if(schedule.busy.length!==0){
-                //   "There is a time conflict"
-                //   rtm.sendMessage('Alert! There is a time Conflict with one of the attendeee schedules'
-                //   ,user.slackDMId,(err,msg)=>{
-                //     if(err){ console.log('error sendim me fedback messsage',err)
-                //   }else{
-                //     console.log(msg)
-                //   }
-                //
-                //   })
-                // }
                 timeConflict(fnd,startTime,endTime)
                 // timeSchedules.push(schedule)
                 .then(function(calendar) {
@@ -276,39 +241,14 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
                   }
                 })
 
-
-
-
-                console.log('accesss othe users calendarhdhdhdhdhd')
-
               }
             })
             .catch(err=>{
               console.log('ErrorFindingInviteeonDatabase',err)
             })
 
-
-
-
           })
 
-
-
-
-
-          //  console.log(timeSchedules)
-
-            // if(timeSchedules.length!==0){
-            //   "There is a time conflict"
-            //   rtm.sendMessage('Alert! There is a time Conflict with one of the attendeee schedules'
-            //   ,user.slackDMId,(err,msg)=>{
-            //     if(err){ console.log('error sendim me fedback messsage',err)
-            //   }else{
-            //     console.log(msg)
-            //   }
-            //
-            //   })
-            // }
 
           if (!valid) {
             return;
@@ -379,9 +319,6 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   .catch(function(err){
     console.log("ERROR", err);
   })
-
-
-  console.log('jjjj')
 
 });
 
