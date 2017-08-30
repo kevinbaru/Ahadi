@@ -20,7 +20,7 @@ var OAuth2 = google.auth.OAuth2;
     access_type: 'offline',
     //Gets refresh_token
     prompt: 'consent',
-    // If you only need one scope you can pass it as a string
+ 
     scope: scopes,
     // Optional property that passes state parameters to redirect URI
    state:userId
